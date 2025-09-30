@@ -21,7 +21,9 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "stdio.h"
+#include "FreeRTOS.h"
+#include "task.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -50,7 +52,9 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
 /* USER CODE BEGIN PFP */
-
+static void task1_handler(void* parameters);
+static void task2_handler(void* parameters);
+static void task3_handler(void* parameters);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -65,7 +69,13 @@ static void MX_USART2_UART_Init(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
+	TaskHandle_t task1_handle;
+		TaskHandle_t task2_handle;
+		TaskHandle_t task3_handle;
 
+		BaseType_t task1;
+		BaseType_t task2;
+		BaseType_t task3;
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -89,6 +99,16 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
 
+  task1 = xTaskCreate(task1_handler, "TASK-1", 100, "Hello WORLD FROM TASK 1", 2, &task1_handle);
+  task2 = xTaskCreate(task2_handler, "TASK-2", 100, "Hello WORLD FROM TASK 2", 2, &task2_handle);
+  task3 = xTaskCreate(task3_handler, "TASK-3", 100, "Hello WORLD FROM TASK 3", 2, &task3_handle);
+
+
+  configASSERT(task1 == pdPASS);
+  configASSERT(task2 == pdPASS);
+  configASSERT(task3 == pdPASS);
+
+  vTaskStartScheduler();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -188,7 +208,7 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, LED1_Pin|LED2_Pin|LE3_Pin|LD2_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, LED1_Pin|LED2_Pin|LED3_Pin|LD2_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(LED4_GPIO_Port, LED4_Pin, GPIO_PIN_RESET);
@@ -199,8 +219,8 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(B1_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : LED1_Pin LED2_Pin LE3_Pin LD2_Pin */
-  GPIO_InitStruct.Pin = LED1_Pin|LED2_Pin|LE3_Pin|LD2_Pin;
+  /*Configure GPIO pins : LED1_Pin LED2_Pin LED3_Pin LD2_Pin */
+  GPIO_InitStruct.Pin = LED1_Pin|LED2_Pin|LED3_Pin|LD2_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -220,7 +240,52 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+static void task1_handler(void* parameters)
+{
+	  const char* msg = (const char*)parameters;
+	    for(;;)
+	    {
+//	        HAL_GPIO_TogglePin(LED_RED_GPIO_Port, LED_RED_Pin);
+	    	   HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
+	        printf("%s\n", msg);
+	        vTaskDelay(pdMS_TO_TICKS(100));
+//	        taskYIELD();
+	    }
 
+
+
+}
+
+static void task2_handler(void* parameters)
+{
+	  const char* msg = (const char*)parameters;
+	    for(;;)
+	    {
+//	        HAL_GPIO_TogglePin(LED_RED_GPIO_Port, LED_RED_Pin);
+	    	   HAL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin);
+	        printf("%s\n", msg);
+//	        vTaskDelay(pdMS_TO_TICKS(100));
+//	        taskYIELD();
+	    }
+
+
+}
+
+
+static void task3_handler(void* parameters)
+{
+	  const char* msg = (const char*)parameters;
+	    for(;;)
+	    {
+//	        HAL_GPIO_TogglePin(LED_RED_GPIO_Port, LED_RED_Pin);
+	        printf("%s\n", msg);
+	        HAL_GPIO_TogglePin(LED3_GPIO_Port, LED3_Pin);
+//	        vTaskDelay(pdMS_TO_TICKS(100));
+//	        taskYIELD();
+	    }
+
+
+}
 /* USER CODE END 4 */
 
 /**
